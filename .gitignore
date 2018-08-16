@@ -1,0 +1,14 @@
+# IDE - VSCode
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# OS X trash
+.DS_Store
+
+# Python files
+*.py[cod]
+
+# Vim swap files
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
