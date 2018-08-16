@@ -82,7 +82,6 @@ class Agent(base_agent.BaseAgent):
 
             beacon = UnitPos(beacon_x, beacon_y)
 
-            self.smart_action = ACTION_SELECT_MARINE
             return actions.FUNCTIONS.Move_screen('now', beacon.center)
 
         return actions.FUNCTIONS.no_op()
