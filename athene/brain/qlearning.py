@@ -84,6 +84,8 @@ class QLearningTable:
         """Initialize Qtable from the specified folder."""
         q_learn = QLearningTable(actions)
 
+        os.makedirs(src, exist_ok=True)
+
         data_dump = os.path.join(src, 'qlearn.gz')
         if os.path.isfile(data_dump):
             q_learn.q_table = pandas.read_pickle(data_dump, compression='gzip')
