@@ -11,6 +11,7 @@ from pysc2.lib import units
 
 DIAMETERS = {
     units.Neutral.MineralField: 42,
+    units.Neutral.VespeneGeyser: 97,
     units.Terran.Marine: 9,
     units.Terran.Refinery: 112,
     units.Terran.SupplyDepot: 69,
