@@ -23,10 +23,6 @@ from athene.api.actions import \
     ACTION_SELECT_IDLE_WORKER, \
     ACTION_TRAIN_SCV
 from athene.api.screen import UnitPos, UnitPosList
-from athene.api.geometry import \
-    DIAMETER_MINERAL_PATCH, \
-    DIAMETER_REFINERY, \
-    DIAMETER_SUPPLY
 from athene.brain.qlearning import QLearningTable
 
 
@@ -49,7 +45,7 @@ class Agent(base_agent.BaseAgent):
 
         self.qlearn = QLearningTable.load(
             actions=self.smart_actions,
-            src=self.DATA_FOLDER
+            src=self.DATA_FOLDER,
         )
 
         self.town_hall = None
@@ -76,17 +72,14 @@ class Agent(base_agent.BaseAgent):
             self.qlearn.dump(self.DATA_FOLDER)
             return actions.FUNCTIONS.no_op()
 
-        supplies_y, supplies_x = (unit_type == units.Terran.SupplyDepot).nonzero()
-        supplies = UnitPosList(supplies_x, supplies_y, DIAMETER_SUPPLY)
-
-        refineries_y, refineries_x = (unit_type == units.Terran.Refinery).nonzero()
-        refineries = UnitPosList(refineries_x, refineries_y, DIAMETER_REFINERY)
+        supplies = UnitPosList.locate(obs, units.Terran.SupplyDepot)
+        refineries = UnitPosList.locate(obs, units.Terran.Refinery)
 
         current_state = (
             obs.observation.player.idle_worker_count,
             obs.observation.player.food_workers,
-            supplies.count,
-            refineries.count,
+            len(supplies),
+            len(refineries)
         )
 
         if self.previous_action:
@@ -134,10 +127,9 @@ class Agent(base_agent.BaseAgent):
             if actions.FUNCTIONS.Harvest_Gather_screen.id not in obs.observation.available_actions:
                 return actions.FUNCTIONS.no_op()
 
-            minerals_y, minerals_x = (unit_type == units.Neutral.MineralField).nonzero()
-            minerals = UnitPosList(minerals_x, minerals_y, DIAMETER_MINERAL_PATCH)
+            minerals = UnitPosList.locate(obs, units.Neutral.MineralField)
 
-            if not minerals_y.any():
+            if not minerals:
                 print('[WARNING] No minerals?')
                 return actions.FUNCTIONS.no_op()
 
@@ -148,32 +140,32 @@ class Agent(base_agent.BaseAgent):
 
         if smart_action == ACTION_BUILD_REFINERY:
             # FIXME: Modify actions instead.
-            if refineries.count == 4:
+            if len(refineries) == 4:
                 return actions.FUNCTIONS.no_op()
 
             if actions.FUNCTIONS.Build_Refinery_screen.id not in obs.observation.available_actions:
                 return actions.FUNCTIONS.no_op()
 
-            geysers_y, geysers_x = (unit_type == units.Neutral.VespeneGeyser).nonzero()
+            geysers = UnitPosList.locate(obs, units.Neutral.VespeneGeyser)
 
-            if not geysers_y.any():
+            if not geysers:
                 print('[WARNING] No geysers?')
                 return actions.FUNCTIONS.no_op()
 
-            geyser_x, geyser_y = UnitPosList(geysers_x, geysers_y).random_point()
+            geyser_x, geyser_y = geysers.random_point()
             geyser = UnitPos(geyser_x, geyser_y)
 
             return actions.FUNCTIONS.Build_Refinery_screen('now', geyser.pos)
 
         if smart_action == ACTION_BUILD_SUPPLY:
             # FIXME: Modify actions instead.
-            if supplies.count == 2:
+            if len(supplies) == 2:
                 return actions.FUNCTIONS.no_op()
 
             if actions.FUNCTIONS.Build_SupplyDepot_screen.id not in obs.observation.available_actions:
                 return actions.FUNCTIONS.no_op()
 
-            if supplies.any():
+            if supplies:
                 return actions.FUNCTIONS.Build_SupplyDepot_screen(
                     'now', self.town_hall.shift(0, -20).pos)
 

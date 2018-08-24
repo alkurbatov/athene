@@ -22,7 +22,7 @@ from athene.api.actions import \
     ACTION_DO_NOTHING, \
     ACTION_MOVE_TO_BEACON, \
     ACTION_SELECT_MARINE
-from athene.api.geometry import DIAMETER_MARINE
+from athene.api.geometry import DIAMETERS
 from athene.api.screen import UnitPos
 
 
@@ -54,7 +54,7 @@ class Agent(base_agent.BaseAgent):
                 # hasn't been placed on the screen yet.
                 return actions.FUNCTIONS.no_op()
 
-            if len(marine_y) < DIAMETER_MARINE:
+            if len(marine_y) < DIAMETERS.get(units.Terran.Marine):
                 # NOTE (alkurbatov): Sometimes we receive not fully formed
                 # marine coordinates probably because we are too fast again.
                 # Just ignore it.

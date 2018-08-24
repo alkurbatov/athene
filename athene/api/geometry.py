@@ -6,8 +6,12 @@
 Allvalues measured in number of points.
 """
 
-DIAMETER_MINERAL_PATCH = 42
+from pysc2.lib import units
 
-DIAMETER_MARINE = 9
-DIAMETER_REFINERY = 112
-DIAMETER_SUPPLY = 69
+
+DIAMETERS = {
+    units.Neutral.MineralField: 42,
+    units.Terran.Marine: 9,
+    units.Terran.Refinery: 112,
+    units.Terran.SupplyDepot: 69,
+}

@@ -10,6 +10,8 @@ import random
 
 import numpy
 
+from .geometry import DIAMETERS
+
 
 class UnitPos:
     """Generic representation of a unit received from feature_screen.unit_types.
@@ -44,8 +46,17 @@ class UnitPosList:
         self.pos_y = pos_y
         self.diameter = diameter
 
-    def any(self):
-        """Returns true if there is at list one item in the list."""
+    @staticmethod
+    def locate(obs, unit_type):
+        """Find all the visible units of the specified type and
+        return as a list.
+        """
+        unit_types = obs.observation.feature_screen.unit_type
+        units_y, units_x = (unit_types == unit_type).nonzero()
+        return UnitPosList(units_x, units_y, diameter=DIAMETERS.get(unit_type))
+
+    def __nonzero__(self):
+        """Returns false if there are no items in the list."""
         return self.pos_y.any()
 
     def random_point(self):
@@ -53,7 +64,6 @@ class UnitPosList:
         i = random.randint(0, len(self.pos_y) - 1)
         return self.pos_x[i], self.pos_y[i]
 
-    @property
-    def count(self):
+    def __len__(self):
         """Get units count."""
         return int(round(len(self.pos_y) / self.diameter))
