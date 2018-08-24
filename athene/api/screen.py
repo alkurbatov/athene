@@ -6,6 +6,7 @@
    from feature_screen.
 """
 
+import math
 import random
 
 import numpy
@@ -66,4 +67,4 @@ class UnitPosList:
 
     def __len__(self):
         """Get units count."""
-        return int(round(len(self.pos_y) / self.diameter))
+        return int(math.ceil(len(self.pos_y) / self.diameter))
