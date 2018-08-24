@@ -5,6 +5,7 @@
 """My implementation of the QLearning table."""
 
 import os
+import shutil
 
 import numpy
 import pandas
@@ -80,9 +81,12 @@ class QLearningTable:
         self.q_table.loc[s, a] += self.alpha * (q_target - q_predict)
 
     @staticmethod
-    def load(actions, src):
+    def load(actions, src, reset=False):
         """Initialize Qtable from the specified folder."""
         q_learn = QLearningTable(actions)
+
+        if os.path.isdir(src) and reset:
+            shutil.rmtree(src)
 
         os.makedirs(src, exist_ok=True)
 
