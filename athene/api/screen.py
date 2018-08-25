@@ -10,6 +10,7 @@ import math
 import random
 
 import numpy
+from sklearn.cluster import KMeans
 
 from .geometry import DIAMETERS
 
@@ -64,6 +65,17 @@ class UnitPosList:
         """Select a random point from the list."""
         i = random.randint(0, len(self.pos_y) - 1)
         return self.pos_x[i], self.pos_y[i]
+
+    def random_unit(self):
+        """Select a random unit from the list.
+        WARNING: This method uses kmeans clustering which is precise but
+        very very slow!
+        """
+        kmeans = KMeans(n_clusters=len(self))
+        kmeans.fit(list(zip(self.pos_x, self.pos_y)))
+
+        random_unit = kmeans.cluster_centers_[random.randint(0, len(self) - 1)]
+        return UnitPos(random_unit[0], random_unit[1])
 
     def __len__(self):
         """Get units count."""

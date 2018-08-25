@@ -154,9 +154,7 @@ class Agent(base_agent.BaseAgent):
                     print('[WARNING] No minerals?')
                     return actions.FUNCTIONS.no_op()
 
-                mineral_x, mineral_y = minerals.random_point()
-                mineral_patch = UnitPos(mineral_x, mineral_y)
-
+                mineral_patch = minerals.random_unit()
                 return actions.FUNCTIONS.Harvest_Gather_screen('now', mineral_patch.pos)
 
             if self.executed_action == ACTION_BUILD_REFINERY:
@@ -169,9 +167,7 @@ class Agent(base_agent.BaseAgent):
                     print('[WARNING] No geysers?')
                     return actions.FUNCTIONS.no_op()
 
-                geyser_x, geyser_y = geysers.random_point()
-                geyser = UnitPos(geyser_x, geyser_y)
-
+                geyser = geysers.random_unit()
                 return actions.FUNCTIONS.Build_Refinery_screen('now', geyser.pos)
 
             if self.executed_action == ACTION_BUILD_SUPPLY:
