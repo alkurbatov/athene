@@ -82,6 +82,22 @@ class Agent(base_agent.BaseAgent):
             len(refineries)
         )
 
+        excluded_actions = set()
+
+        if obs.observation.player.idle_worker_count == 0:
+            excluded_actions.add(ACTION_SELECT_IDLE_WORKER)
+            excluded_actions.add(ACTION_HARVEST_MINERALS)
+
+        if obs.observation.player.food_cap == obs.observation.player.food_used:
+            excluded_actions.add(ACTION_SELECT_COMMAND_CENTER)
+            excluded_actions.add(ACTION_TRAIN_SCV)
+
+        if len(supplies) >= 2:
+            excluded_actions.add(ACTION_BUILD_SUPPLY)
+
+        if len(refineries) >= 4:
+            excluded_actions.add(ACTION_BUILD_REFINERY)
+
         if self.previous_action:
             self.qlearn.learn(
                 self.previous_state,
@@ -90,13 +106,15 @@ class Agent(base_agent.BaseAgent):
                 current_state
             )
 
-        smart_action = self.qlearn.choose_action(current_state)
+        smart_action = self.qlearn.choose_action(
+            current_state,
+            excluded_actions=excluded_actions
+        )
 
         self.previous_state = current_state
         self.previous_action = smart_action
 
         if smart_action == ACTION_SELECT_COMMAND_CENTER:
-            # FIXME: Don't select CC if we have no supplies and don't try to train SCVs.
             cc_y, cc_x = (unit_type == units.Terran.CommandCenter).nonzero()
 
             if not cc_y.any():
@@ -114,10 +132,6 @@ class Agent(base_agent.BaseAgent):
             return actions.FUNCTIONS.Train_SCV_quick('now')
 
         if smart_action == ACTION_SELECT_IDLE_WORKER:
-            # FIXME: Modify actions instead.
-            if obs.observation.player.idle_worker_count == 0:
-                return actions.FUNCTIONS.no_op()
-
             if actions.FUNCTIONS.select_idle_worker.id not in obs.observation.available_actions:
                 return actions.FUNCTIONS.no_op()
 
@@ -139,10 +153,6 @@ class Agent(base_agent.BaseAgent):
             return actions.FUNCTIONS.Harvest_Gather_screen('now', mineral_patch.pos)
 
         if smart_action == ACTION_BUILD_REFINERY:
-            # FIXME: Modify actions instead.
-            if len(refineries) == 4:
-                return actions.FUNCTIONS.no_op()
-
             if actions.FUNCTIONS.Build_Refinery_screen.id not in obs.observation.available_actions:
                 return actions.FUNCTIONS.no_op()
 
@@ -158,10 +168,6 @@ class Agent(base_agent.BaseAgent):
             return actions.FUNCTIONS.Build_Refinery_screen('now', geyser.pos)
 
         if smart_action == ACTION_BUILD_SUPPLY:
-            # FIXME: Modify actions instead.
-            if len(supplies) == 2:
-                return actions.FUNCTIONS.no_op()
-
             if actions.FUNCTIONS.Build_SupplyDepot_screen.id not in obs.observation.available_actions:
                 return actions.FUNCTIONS.no_op()
 

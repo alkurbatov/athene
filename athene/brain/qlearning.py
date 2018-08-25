@@ -22,31 +22,39 @@ class QLearningTable:
     """
 
     def __init__(self, actions, alpha=0.01, gamma=0.9, epsilon=0.9):
-        self.actions = actions
+        self.disallowed_actions = {}
         self.alpha = alpha
         self.gamma = gamma
         self.epsilon = epsilon
-        self.q_table = pandas.DataFrame(
-            columns=self.actions, dtype=numpy.float64)
+        self.q_table = pandas.DataFrame(columns=actions, dtype=numpy.float64)
 
-    def choose_action(self, current_state):
+    def choose_action(self, current_state, excluded_actions=None):
         """Choose the next action based on the current state."""
         current_state = str(current_state)
-
         self._register_state(current_state)
+
+        state_actions = self.q_table.loc[current_state, :]
+
+        if excluded_actions:
+            self.disallowed_actions[current_state] = excluded_actions
+
+            # NOTE (alkurbatov): Filter excluded actions from
+            # the possible choices, so the agent will not take
+            # an invalid action.
+            items = set(self.q_table.columns) - excluded_actions
+            state_actions = state_actions.filter(items=items)
 
         if numpy.random.uniform() < self.epsilon:
             # NOTE (alkurbatov): Try to choose the best action
             # available in the current state.
-            state_action = self.q_table.loc[current_state, :]
-
-            # NOTE (alkurbatov): Some actions could have equal weights.
-            # Select random one in this case.
-            state_action = state_action.reindex(numpy.random.permutation(state_action.index))
-            action = state_action.idxmax()
+            # Some actions could have equal weights, select random one
+            # in this case.
+            state_actions = state_actions.reindex(
+                numpy.random.permutation(state_actions.index))
+            action = state_actions.idxmax()
         else:
             # NOTE (alkurbatov): Time for exploration.
-            action = numpy.random.choice(self.actions)
+            action = numpy.random.choice(state_actions.index)
 
         return action
 
@@ -76,7 +84,19 @@ class QLearningTable:
             # is sparse reward.
             q_target = r
         else:
-            q_target = r + self.gamma * self.q_table.loc[s_, :].max()
+            rewards = self.q_table.loc[s_, :]
+
+            if s_ in self.disallowed_actions:
+                # NOTE (alkurbatov): Since the invalid actions never get
+                # chosen, their rewards never change. If they start at 0
+                # then they could become the highest value action
+                # for that state if all other actions have negative values.
+                # To get around this, we filter the invalid actions from
+                # the next state’s rewards.
+                items = set(self.q_table.columns) - self.disallowed_actions[s_]
+                rewards = rewards.filter(items=items)
+
+            q_target = r + self.gamma * rewards.max()
 
         self.q_table.loc[s, a] += self.alpha * (q_target - q_predict)
 
@@ -108,7 +128,7 @@ class QLearningTable:
 
         self.q_table = self.q_table.append(
             pandas.Series(
-                [0] * len(self.actions),
+                [0] * len(self.q_table.columns),
                 index=self.q_table.columns,
                 name=current_state
             )
