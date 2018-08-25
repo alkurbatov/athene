@@ -16,9 +16,12 @@ class QLearningTable:
         https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow
 
         Meaning of variables:
-        alpha - the learning rate.
-        gamma - the reward decay aka discount factor.
+        alpha   - the learning rate.
+        gamma   - the reward decay aka discounting rate. The larger the gamma,
+                  the smaller the discount, which means that the agent cares
+                  more about the long term reward.
         epsilon - the exploration rate aka the greedy policy factor.
+                  The exploration means finding more about the environment.
     """
 
     def __init__(self, actions, alpha=0.01, gamma=0.9, epsilon=0.9):
@@ -59,7 +62,7 @@ class QLearningTable:
         return action
 
     def learn(self, s, a, r, s_):
-        """Learn using the Qlearning algorithm,
+        """Learn using the Qlearning algorithm.
 
             Meaning of variables:
             s - a previous state.

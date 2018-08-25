@@ -3,7 +3,7 @@
 # Copyright (c) 2017-2018 Alexander Kurbatov
 
 """A set of various handy geometry constants.
-Allvalues measured in number of points.
+All values measured in number of points.
 """
 
 from pysc2.lib import units
