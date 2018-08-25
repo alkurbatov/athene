@@ -14,5 +14,6 @@ DIAMETERS = {
     units.Neutral.VespeneGeyser: 97,
     units.Terran.Marine: 9,
     units.Terran.Refinery: 112,
+    units.Terran.SCV: 12,
     units.Terran.SupplyDepot: 69,
 }

@@ -124,19 +124,19 @@ class Agent(base_agent.BaseAgent):
             if smart_action == ACTION_TRAIN_SCV:
                 cc_y, cc_x = (unit_type == units.Terran.CommandCenter).nonzero()
 
-                if not cc_y.any():
-                    print('[WARNING] Where is your Command Center?')
-                    return actions.FUNCTIONS.no_op()
-
                 # NOTE (alkurbatov): There is only one command center on the screen.
                 cc = UnitPos(cc_x, cc_y)
                 return actions.FUNCTIONS.select_point('select', cc.center)
 
-            # NOTE (alkurbatov): All other actions require an SCV.
-            if actions.FUNCTIONS.select_idle_worker.id not in obs.observation.available_actions:
-                return actions.FUNCTIONS.no_op()
+            if smart_action == ACTION_HARVEST_MINERALS:
+                if actions.FUNCTIONS.select_idle_worker.id not in obs.observation.available_actions:
+                    return actions.FUNCTIONS.no_op()
 
-            return actions.FUNCTIONS.select_idle_worker('select')
+                return actions.FUNCTIONS.select_idle_worker('select')
+
+            # NOTE (alkurbatov): All other actions require an SCV.
+            scv = UnitPosList.locate(obs, units.Terran.SCV).random_point()
+            return actions.FUNCTIONS.select_point('select', scv.pos)
 
         if self.stage == 2:
             self.stage = 1
@@ -149,12 +149,8 @@ class Agent(base_agent.BaseAgent):
 
             if self.executed_action == ACTION_HARVEST_MINERALS:
                 minerals = UnitPosList.locate(obs, units.Neutral.MineralField)
-
-                if not minerals:
-                    print('[WARNING] No minerals?')
-                    return actions.FUNCTIONS.no_op()
-
                 mineral_patch = minerals.random_unit()
+
                 return actions.FUNCTIONS.Harvest_Gather_screen('now', mineral_patch.pos)
 
             if self.executed_action == ACTION_BUILD_REFINERY:
@@ -162,12 +158,8 @@ class Agent(base_agent.BaseAgent):
                     return actions.FUNCTIONS.no_op()
 
                 geysers = UnitPosList.locate(obs, units.Neutral.VespeneGeyser)
-
-                if not geysers:
-                    print('[WARNING] No geysers?')
-                    return actions.FUNCTIONS.no_op()
-
                 geyser = geysers.random_unit()
+
                 return actions.FUNCTIONS.Build_Refinery_screen('now', geyser.pos)
 
             if self.executed_action == ACTION_BUILD_SUPPLY:

@@ -64,7 +64,7 @@ class UnitPosList:
     def random_point(self):
         """Select a random point from the list."""
         i = random.randint(0, len(self.pos_y) - 1)
-        return self.pos_x[i], self.pos_y[i]
+        return UnitPos(self.pos_x[i], self.pos_y[i])
 
     def random_unit(self):
         """Select a random unit from the list.
