@@ -20,6 +20,7 @@ from athene.api.actions import \
     ACTION_DO_NOTHING, \
     ACTION_HARVEST_MINERALS, \
     ACTION_TRAIN_SCV
+from athene.api.actions import cannot
 from athene.api.screen import UnitPos, UnitPosList
 from athene.brain.qlearning import QLearningTable
 
@@ -129,7 +130,7 @@ class Agent(base_agent.BaseAgent):
                 return actions.FUNCTIONS.select_point('select', cc.center)
 
             if smart_action == ACTION_HARVEST_MINERALS:
-                if actions.FUNCTIONS.select_idle_worker.id not in obs.observation.available_actions:
+                if cannot(obs, actions.FUNCTIONS.select_idle_worker.id):
                     return actions.FUNCTIONS.no_op()
 
                 return actions.FUNCTIONS.select_idle_worker('select')
@@ -142,7 +143,7 @@ class Agent(base_agent.BaseAgent):
             self.stage = 1
 
             if self.executed_action == ACTION_TRAIN_SCV:
-                if actions.FUNCTIONS.Train_SCV_quick.id not in obs.observation.available_actions:
+                if cannot(obs, actions.FUNCTIONS.Train_SCV_quick.id):
                     return actions.FUNCTIONS.no_op()
 
                 return actions.FUNCTIONS.Train_SCV_quick('now')
@@ -154,7 +155,7 @@ class Agent(base_agent.BaseAgent):
                 return actions.FUNCTIONS.Harvest_Gather_screen('now', mineral_patch.pos)
 
             if self.executed_action == ACTION_BUILD_REFINERY:
-                if actions.FUNCTIONS.Build_Refinery_screen.id not in obs.observation.available_actions:
+                if cannot(obs, actions.FUNCTIONS.Build_Refinery_screen.id):
                     return actions.FUNCTIONS.no_op()
 
                 geysers = UnitPosList.locate(obs, units.Neutral.VespeneGeyser)
@@ -163,7 +164,7 @@ class Agent(base_agent.BaseAgent):
                 return actions.FUNCTIONS.Build_Refinery_screen('now', geyser.pos)
 
             if self.executed_action == ACTION_BUILD_SUPPLY:
-                if actions.FUNCTIONS.Build_SupplyDepot_screen.id not in obs.observation.available_actions:
+                if cannot(obs, actions.FUNCTIONS.Build_SupplyDepot_screen.id):
                     return actions.FUNCTIONS.no_op()
 
                 if supplies:

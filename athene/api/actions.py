@@ -24,3 +24,13 @@ ACTION_BUILD_SPAWNING_POOL = 'buildspawningpool'
 ACTION_SPAWN_DRONE = 'spawndrone'
 ACTION_SPAWN_OVERLORD = 'spawnoverlord'
 ACTION_SPAWN_ZERGLINGS = 'spawnzerglings'
+
+
+def can(obs, action_id):
+    """Returns True if the specified action is available."""
+    return action_id in obs.observation.available_actions
+
+
+def cannot(obs, action_id):
+    """Returns True if the specified action is not available."""
+    return not can(obs, action_id)
