@@ -23,6 +23,7 @@ from athene.api.actions import \
 from athene.api.actions import cannot
 from athene.api.screen import UnitPos, UnitPosList
 from athene.brain.qlearning import QLearningTable
+from athene.metrics import store
 
 
 class Agent(base_agent.BaseAgent):
@@ -54,6 +55,8 @@ class Agent(base_agent.BaseAgent):
         self.executed_action = None
         self.previous_state = None
 
+        self.metrics = store.Score(self.DATA_FOLDER)
+
     def step(self, obs):
         super().step(obs)
 
@@ -73,6 +76,7 @@ class Agent(base_agent.BaseAgent):
             )
 
             self.qlearn.dump(self.DATA_FOLDER)
+            self.metrics.record(obs.observation.score_cumulative.score)
             return actions.FUNCTIONS.no_op()
 
         supplies = UnitPosList.locate(obs, units.Terran.SupplyDepot)
