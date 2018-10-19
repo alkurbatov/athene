@@ -32,20 +32,20 @@ class Agent(base_agent.BaseAgent):
 
     DATA_FOLDER = os.path.join('memory', 'collect_minerals_and_gas')
 
+    SMART_ACTIONS = [
+        ACTION_DO_NOTHING,
+        ACTION_BUILD_COMMAND_CENTER,
+        ACTION_HARVEST_MINERALS,
+        ACTION_TRAIN_SCV,
+        ACTION_BUILD_SUPPLY,
+        ACTION_BUILD_REFINERY,
+    ]
+
     def __init__(self):
         super().__init__()
 
-        self.smart_actions = [
-            ACTION_DO_NOTHING,
-            ACTION_BUILD_COMMAND_CENTER,
-            ACTION_HARVEST_MINERALS,
-            ACTION_TRAIN_SCV,
-            ACTION_BUILD_SUPPLY,
-            ACTION_BUILD_REFINERY,
-        ]
-
         self.qlearn = QLearningTable.load(
-            actions=self.smart_actions,
+            actions=self.SMART_ACTIONS,
             src=self.DATA_FOLDER,
         )
 
