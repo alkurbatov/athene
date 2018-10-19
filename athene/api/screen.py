@@ -17,19 +17,21 @@ from .geometry import DIAMETERS
 
 class UnitPos:
     """Generic representation of a unit received from feature_screen.unit_types.
+    Operates with approximate center of the provided geometry.
     """
 
     def __init__(self, pos_x, pos_y):
+        if isinstance(pos_x, (list, tuple, numpy.ndarray)):
+            center = numpy.mean(list(zip(pos_x, pos_y)), axis=0).round()
+            self.pos_x = center[0]
+            self.pos_y = center[1]
+            return
+
         self.pos_x = pos_x
         self.pos_y = pos_y
 
     def __str__(self):
         return '(x:{}, y:{})'.format(self.pos_x, self.pos_y)
-
-    @property
-    def center(self):
-        """Get coordinates of the unit's center."""
-        return numpy.mean(list(zip(self.pos_x, self.pos_y)), axis=0).round()
 
     @property
     def pos(self):
@@ -38,8 +40,7 @@ class UnitPos:
 
     def shift(self, shift_x, shift_y):
         """Return shifted position of this unit."""
-        center = self.center
-        return UnitPos(center[0] + shift_x, center[1] + shift_y)
+        return UnitPos(self.pos_x + shift_x, self.pos_y + shift_y)
 
 
 class UnitPosList:

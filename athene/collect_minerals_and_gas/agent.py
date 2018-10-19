@@ -145,9 +145,10 @@ class Agent(base_agent.BaseAgent):
             if smart_action == ACTION_TRAIN_SCV:
                 cc_y, cc_x = (unit_type == units.Terran.CommandCenter).nonzero()
 
-                # NOTE (alkurbatov): There is only one command center on the screen.
+                # FIXME (alkurbatov): There could be several command centers
+                # on the screen.
                 cc = UnitPos(cc_x, cc_y)
-                return actions.FUNCTIONS.select_point('select', cc.center)
+                return actions.FUNCTIONS.select_point('select', cc.pos)
 
             if smart_action == ACTION_HARVEST_MINERALS:
                 if cannot(obs, actions.FUNCTIONS.select_idle_worker.id):

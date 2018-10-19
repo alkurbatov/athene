@@ -66,7 +66,7 @@ class Agent(base_agent.BaseAgent):
             marine = UnitPos(marine_x, marine_y)
 
             self.smart_action = ACTION_MOVE_TO_BEACON
-            return actions.FUNCTIONS.select_point('select', marine.center)
+            return actions.FUNCTIONS.select_point('select', marine.pos)
 
         if self.smart_action == ACTION_MOVE_TO_BEACON:
             if actions.FUNCTIONS.Move_screen.id not in obs.observation.available_actions:
@@ -82,6 +82,6 @@ class Agent(base_agent.BaseAgent):
 
             beacon = UnitPos(beacon_x, beacon_y)
 
-            return actions.FUNCTIONS.Move_screen('now', beacon.center)
+            return actions.FUNCTIONS.Move_screen('now', beacon.pos)
 
         return actions.FUNCTIONS.no_op()
