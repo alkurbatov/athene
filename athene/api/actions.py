@@ -29,6 +29,14 @@ ACTION_SPAWN_OVERLORD = 'spawnoverlord'
 ACTION_SPAWN_ZERGLINGS = 'spawnzerglings'
 
 
+COSTS = {
+    ACTION_BUILD_COMMAND_CENTER: 400,
+    ACTION_BUILD_REFINERY: 75,
+    ACTION_TRAIN_SCV: 50,
+    ACTION_BUILD_SUPPLY: 100,
+}
+
+
 @enum.unique
 class Stages(enum.IntEnum):
     """Many tasks are done in two or more steps (stages), e.g.
@@ -51,3 +59,10 @@ def can(obs, action_id):
 def cannot(obs, action_id):
     """Returns True if the specified action is not available."""
     return not can(obs, action_id)
+
+
+def cannot_afford(obs, action_id):
+    """Returns True if there is not enough resources for the specified
+    action (e.g. to create a building or train a unit).
+    """
+    return obs.observation.player.minerals <= COSTS.get(action_id, 0)
