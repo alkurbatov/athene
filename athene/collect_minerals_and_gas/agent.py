@@ -112,13 +112,13 @@ class Agent(base_agent.BaseAgent):
                 excluded_actions.add(ACTION_HARVEST_MINERALS)
 
             if obs.observation.player.food_cap == obs.observation.player.food_used or \
-                cannot_afford(obs, ACTION_TRAIN_SCV):
+                    cannot_afford(obs, ACTION_TRAIN_SCV):
                 excluded_actions.add(ACTION_TRAIN_SCV)
 
             if len(supplies) >= 2 or cannot_afford(obs, ACTION_BUILD_SUPPLY):
                 excluded_actions.add(ACTION_BUILD_SUPPLY)
 
-            if len(refineries) >= 4 or cannot_afford(obs, ACTION_BUILD_REFINERY):
+            if not self.geysers or cannot_afford(obs, ACTION_BUILD_REFINERY):
                 excluded_actions.add(ACTION_BUILD_REFINERY)
 
             if len(town_halls) >= 2 or cannot_afford(obs, ACTION_BUILD_COMMAND_CENTER):
@@ -178,7 +178,7 @@ class Agent(base_agent.BaseAgent):
                 if cannot(obs, actions.FUNCTIONS.Build_Refinery_screen.id):
                     return actions.FUNCTIONS.no_op()
 
-                geyser = self.geysers.random_unit()
+                geyser = self.geysers.pop_random_unit()
                 return actions.FUNCTIONS.Build_Refinery_screen('now', geyser.pos)
 
             if self.executed_action == ACTION_BUILD_SUPPLY:
