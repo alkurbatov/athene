@@ -10,6 +10,7 @@ scikit-learn = "*"
 
 [dev-packages]
 pylint = "*"
+pylint-quotes = "*"
 
 [requires]
 python_version = "3.7"
