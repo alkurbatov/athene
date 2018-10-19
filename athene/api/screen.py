@@ -40,7 +40,7 @@ class UnitPos:
 
 
 class UnitPosList:
-    """Generic representation of of units list from feature_screen.unit_types.
+    """Generic representation of units list from feature_screen.unit_types.
     """
 
     def __init__(self, pos_x, pos_y, diameter=None):
@@ -66,17 +66,39 @@ class UnitPosList:
         i = random.randint(0, len(self.pos_y) - 1)
         return UnitPos(self.pos_x[i], self.pos_y[i])
 
-    def random_unit(self):
-        """Select a random unit from the list.
-        WARNING: This method uses kmeans clustering which is precise but
-        very very slow!
-        """
-        kmeans = KMeans(n_clusters=len(self))
-        kmeans.fit(list(zip(self.pos_x, self.pos_y)))
-
-        random_unit = kmeans.cluster_centers_[random.randint(0, len(self) - 1)]
-        return UnitPos(random_unit[0], random_unit[1])
-
     def __len__(self):
         """Get units count."""
         return int(math.ceil(len(self.pos_y) / self.diameter))
+
+
+class UnitPosClustersList(UnitPosList):
+    """Another representation of units list from feature_screen.unit_types.
+    The units positions are identified by forming clusters of points.
+
+    WARNING: This method uses kmeans clustering which is precise but
+    very very slow!
+    """
+
+    def __init__(self, pos_x, pos_y, diameter=None):
+        super().__init__(pos_x, pos_y, diameter)
+
+        kmeans = KMeans(n_clusters=len(self))
+        kmeans.fit(list(zip(self.pos_x, self.pos_y)))
+
+        self.cluster_centers = kmeans.cluster_centers_
+
+    @staticmethod
+    def locate(obs, unit_type):
+        """Find all the visible units of the specified type and
+        return as a list.
+        """
+        unit_types = obs.observation.feature_screen.unit_type
+        units_y, units_x = (unit_types == unit_type).nonzero()
+        return UnitPosClustersList(units_x, units_y,
+                                   diameter=DIAMETERS.get(unit_type))
+
+    def random_unit(self):
+        """Select a random unit from the list.
+        """
+        random_unit = self.cluster_centers[random.randint(0, len(self) - 1)]
+        return UnitPos(random_unit[0], random_unit[1])

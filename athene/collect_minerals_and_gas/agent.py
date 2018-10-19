@@ -22,7 +22,7 @@ from athene.api.actions import \
     ACTION_HARVEST_MINERALS, \
     ACTION_TRAIN_SCV
 from athene.api.actions import cannot
-from athene.api.screen import UnitPos, UnitPosList
+from athene.api.screen import UnitPos, UnitPosList, UnitPosClustersList
 from athene.brain.qlearning import QLearningTable
 from athene.metrics import store
 
@@ -52,6 +52,9 @@ class Agent(base_agent.BaseAgent):
         # 2 - Issue an order.
         self.stage = 0
 
+        self.minerals = None
+        self.geysers = None
+
         self.town_hall = None
         self.executed_action = None
         self.previous_state = None
@@ -67,6 +70,14 @@ class Agent(base_agent.BaseAgent):
             self.stage = 1
             cc_y, cc_x = (unit_type == units.Terran.CommandCenter).nonzero()
             self.town_hall = UnitPos(cc_x, cc_y)
+
+            # NOTE (alkurbatov): Cache positions of mineral patches and geysers.
+            self.minerals = UnitPosClustersList.locate(
+                obs,
+                units.Neutral.MineralField)
+            self.geysers = UnitPosClustersList.locate(
+                obs,
+                units.Neutral.VespeneGeyser)
 
         if obs.last():
             self.qlearn.learn(
@@ -154,18 +165,14 @@ class Agent(base_agent.BaseAgent):
                 return actions.FUNCTIONS.Train_SCV_quick('now')
 
             if self.executed_action == ACTION_HARVEST_MINERALS:
-                minerals = UnitPosList.locate(obs, units.Neutral.MineralField)
-                mineral_patch = minerals.random_unit()
-
+                mineral_patch = self.minerals.random_unit()
                 return actions.FUNCTIONS.Harvest_Gather_screen('now', mineral_patch.pos)
 
             if self.executed_action == ACTION_BUILD_REFINERY:
                 if cannot(obs, actions.FUNCTIONS.Build_Refinery_screen.id):
                     return actions.FUNCTIONS.no_op()
 
-                geysers = UnitPosList.locate(obs, units.Neutral.VespeneGeyser)
-                geyser = geysers.random_unit()
-
+                geyser = self.geysers.random_unit()
                 return actions.FUNCTIONS.Build_Refinery_screen('now', geyser.pos)
 
             if self.executed_action == ACTION_BUILD_SUPPLY:
