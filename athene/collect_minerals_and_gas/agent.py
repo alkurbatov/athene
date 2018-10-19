@@ -16,6 +16,7 @@ from pysc2.lib import actions
 from pysc2.lib import units
 
 from athene.api.actions import \
+    ACTION_BUILD_COMMAND_CENTER, \
     ACTION_BUILD_REFINERY, \
     ACTION_BUILD_SUPPLY, \
     ACTION_DO_NOTHING, \
@@ -36,6 +37,7 @@ class Agent(base_agent.BaseAgent):
 
         self.smart_actions = [
             ACTION_DO_NOTHING,
+            ACTION_BUILD_COMMAND_CENTER,
             ACTION_HARVEST_MINERALS,
             ACTION_TRAIN_SCV,
             ACTION_BUILD_SUPPLY,
@@ -93,11 +95,13 @@ class Agent(base_agent.BaseAgent):
         if self.stage == Stages.SELECT_UNIT:
             self.stage = Stages.ISSUE_ORDER
 
+            town_halls = UnitPosList.locate(obs, units.Terran.CommandCenter)
             refineries = UnitPosList.locate(obs, units.Terran.Refinery)
 
             current_state = (
                 obs.observation.player.idle_worker_count,
                 obs.observation.player.food_workers,
+                len(town_halls),
                 len(supplies),
                 len(refineries)
             )
@@ -115,6 +119,9 @@ class Agent(base_agent.BaseAgent):
 
             if len(refineries) >= 4:
                 excluded_actions.add(ACTION_BUILD_REFINERY)
+
+            if len(town_halls) >= 2:
+                excluded_actions.add(ACTION_BUILD_COMMAND_CENTER)
 
             if self.executed_action:
                 self.qlearn.learn(
@@ -182,5 +189,12 @@ class Agent(base_agent.BaseAgent):
 
                 return actions.FUNCTIONS.Build_SupplyDepot_screen(
                     'now', self.town_hall.shift(0, 20).pos)
+
+            if self.executed_action == ACTION_BUILD_COMMAND_CENTER:
+                if cannot(obs, actions.FUNCTIONS.Build_CommandCenter_screen.id):
+                    return actions.FUNCTIONS.no_op()
+
+                return actions.FUNCTIONS.Build_CommandCenter_screen(
+                    'now', self.town_hall.shift(16, 0).pos)
 
         return actions.FUNCTIONS.no_op()
