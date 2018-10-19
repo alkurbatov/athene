@@ -75,7 +75,7 @@ class UnitPosList:
         return int(math.ceil(len(self.pos_y) / self.diameter))
 
 
-class UnitPosClustersList(UnitPosList):
+class UnitPosClustersList:
     """Another representation of units list from feature_screen.unit_types.
     The units positions are identified by forming clusters of points.
 
@@ -83,13 +83,11 @@ class UnitPosClustersList(UnitPosList):
     very very slow!
     """
 
-    def __init__(self, pos_x, pos_y, diameter=None):
-        super().__init__(pos_x, pos_y, diameter)
+    def __init__(self, pos_x, pos_y, diameter):
+        kmeans = KMeans(n_clusters=int(math.ceil(len(pos_y) / diameter)))
+        kmeans.fit(list(zip(pos_x, pos_y)))
 
-        kmeans = KMeans(n_clusters=len(self))
-        kmeans.fit(list(zip(self.pos_x, self.pos_y)))
-
-        self.cluster_centers = kmeans.cluster_centers_
+        self.cluster_centers = kmeans.cluster_centers_.tolist()
 
     @staticmethod
     def locate(obs, unit_type):
@@ -104,5 +102,16 @@ class UnitPosClustersList(UnitPosList):
     def random_unit(self):
         """Select a random unit from the list.
         """
-        random_unit = self.cluster_centers[random.randint(0, len(self) - 1)]
+        random_unit = random.choice(self.cluster_centers)
         return UnitPos(random_unit[0], random_unit[1])
+
+    def pop_random_unit(self):
+        """Select a random unit and remove it from the list.
+        """
+        random_unit = random.choice(self.cluster_centers)
+        self.cluster_centers.remove(random_unit)
+        return UnitPos(random_unit[0], random_unit[1])
+
+    def __len__(self):
+        """Get units count."""
+        return len(self.cluster_centers)
