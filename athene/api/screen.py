@@ -23,6 +23,9 @@ class UnitPos:
         self.pos_x = pos_x
         self.pos_y = pos_y
 
+    def __str__(self):
+        return '(x:{}, y:{})'.format(self.pos_x, self.pos_y)
+
     @property
     def center(self):
         """Get coordinates of the unit's center."""
