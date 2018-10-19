@@ -22,7 +22,7 @@ from athene.api.actions import \
     ACTION_DO_NOTHING, \
     ACTION_HARVEST_MINERALS, \
     ACTION_TRAIN_SCV
-from athene.api.actions import Stages, cannot
+from athene.api.actions import Stages, cannot, cannot_afford
 from athene.api.screen import UnitPos, UnitPosList, UnitPosClustersList
 from athene.brain.qlearning import QLearningTable
 from athene.metrics import store
@@ -111,16 +111,17 @@ class Agent(base_agent.BaseAgent):
             if obs.observation.player.idle_worker_count == 0:
                 excluded_actions.add(ACTION_HARVEST_MINERALS)
 
-            if obs.observation.player.food_cap == obs.observation.player.food_used:
+            if obs.observation.player.food_cap == obs.observation.player.food_used or \
+                cannot_afford(obs, ACTION_TRAIN_SCV):
                 excluded_actions.add(ACTION_TRAIN_SCV)
 
-            if len(supplies) >= 2:
+            if len(supplies) >= 2 or cannot_afford(obs, ACTION_BUILD_SUPPLY):
                 excluded_actions.add(ACTION_BUILD_SUPPLY)
 
-            if len(refineries) >= 4:
+            if len(refineries) >= 4 or cannot_afford(obs, ACTION_BUILD_REFINERY):
                 excluded_actions.add(ACTION_BUILD_REFINERY)
 
-            if len(town_halls) >= 2:
+            if len(town_halls) >= 2 or cannot_afford(obs, ACTION_BUILD_COMMAND_CENTER):
                 excluded_actions.add(ACTION_BUILD_COMMAND_CENTER)
 
             if self.executed_action:
