@@ -4,6 +4,8 @@
 
 """A set of actions definitions."""
 
+import enum
+
 # General
 ACTION_ATTACK = 'attack'
 ACTION_DO_NOTHING = 'donothing'
@@ -24,6 +26,20 @@ ACTION_BUILD_SPAWNING_POOL = 'buildspawningpool'
 ACTION_SPAWN_DRONE = 'spawndrone'
 ACTION_SPAWN_OVERLORD = 'spawnoverlord'
 ACTION_SPAWN_ZERGLINGS = 'spawnzerglings'
+
+
+@enum.unique
+class Stages(enum.IntEnum):
+    """Many tasks are done in two or more steps (stages), e.g.
+    #1 - Select unit.
+    #2 - Issue order.
+
+    This enumeration contains predefined values for the stages.
+    """
+
+    DO_NOTHING = 0
+    SELECT_UNIT = 1
+    ISSUE_ORDER = 2
 
 
 def can(obs, action_id):

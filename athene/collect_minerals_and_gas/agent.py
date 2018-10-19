@@ -21,7 +21,7 @@ from athene.api.actions import \
     ACTION_DO_NOTHING, \
     ACTION_HARVEST_MINERALS, \
     ACTION_TRAIN_SCV
-from athene.api.actions import cannot
+from athene.api.actions import Stages, cannot
 from athene.api.screen import UnitPos, UnitPosList, UnitPosClustersList
 from athene.brain.qlearning import QLearningTable
 from athene.metrics import store
@@ -47,10 +47,7 @@ class Agent(base_agent.BaseAgent):
             src=self.DATA_FOLDER,
         )
 
-        # NOTE (alkurbatov): Many tasks are done in to steps (stages):
-        # 1 - Select a unit.
-        # 2 - Issue an order.
-        self.stage = 0
+        self.stage = Stages.DO_NOTHING
 
         self.minerals = None
         self.geysers = None
@@ -67,7 +64,7 @@ class Agent(base_agent.BaseAgent):
         unit_type = obs.observation.feature_screen.unit_type
 
         if obs.first():
-            self.stage = 1
+            self.stage = Stages.SELECT_UNIT
             cc_y, cc_x = (unit_type == units.Terran.CommandCenter).nonzero()
             self.town_hall = UnitPos(cc_x, cc_y)
 
@@ -93,8 +90,8 @@ class Agent(base_agent.BaseAgent):
 
         supplies = UnitPosList.locate(obs, units.Terran.SupplyDepot)
 
-        if self.stage == 1:
-            self.stage += 1
+        if self.stage == Stages.SELECT_UNIT:
+            self.stage = Stages.ISSUE_ORDER
 
             refineries = UnitPosList.locate(obs, units.Terran.Refinery)
 
@@ -155,8 +152,8 @@ class Agent(base_agent.BaseAgent):
             scv = UnitPosList.locate(obs, units.Terran.SCV).random_point()
             return actions.FUNCTIONS.select_point('select', scv.pos)
 
-        if self.stage == 2:
-            self.stage = 1
+        if self.stage == Stages.ISSUE_ORDER:
+            self.stage = Stages.SELECT_UNIT
 
             if self.executed_action == ACTION_TRAIN_SCV:
                 if cannot(obs, actions.FUNCTIONS.Train_SCV_quick.id):
