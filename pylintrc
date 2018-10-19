@@ -14,7 +14,7 @@ good-names=i,j,k,n,rv
 [FORMAT]
 
 # Maximum number of characters on a single line.
-max-line-length=80
+max-line-length=90
 
 # Enforce string formatting style, provided by the pylint_quotes plugin.
 string-quote=single
