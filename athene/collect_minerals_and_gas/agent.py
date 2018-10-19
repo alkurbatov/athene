@@ -3,6 +3,7 @@
 # Copyright (c) 2017-2018 Alexander Kurbatov
 
 """A simple agent to play in the CollectMineralsAndGas minigame.
+According to the map rules spending of the minerals don't reduce the score.
 
 To run this code do:
 $ python -m pysc2.bin.agent --map CollectMineralsAndGas --agent athene.collect_minerals_and_gas.Agent
