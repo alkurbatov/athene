@@ -5,6 +5,8 @@
 """A set of actions definitions."""
 
 import enum
+from collections import namedtuple
+
 
 # General
 ACTION_ATTACK = 'attack'
@@ -29,11 +31,17 @@ ACTION_SPAWN_OVERLORD = 'spawnoverlord'
 ACTION_SPAWN_ZERGLINGS = 'spawnzerglings'
 
 
+class Cost(namedtuple('Cost', ['minerals', 'vespene', 'food'])):
+
+    def __new__(cls, minerals=0, vespene=0, food=0):
+        return super(Cost, cls).__new__(cls, minerals, vespene, food)
+
+
 COSTS = {
-    ACTION_BUILD_COMMAND_CENTER: 400,
-    ACTION_BUILD_REFINERY: 75,
-    ACTION_TRAIN_SCV: 50,
-    ACTION_BUILD_SUPPLY: 100,
+    ACTION_BUILD_COMMAND_CENTER: Cost(minerals=400),
+    ACTION_BUILD_REFINERY: Cost(minerals=75),
+    ACTION_TRAIN_SCV: Cost(minerals=50, food=1),
+    ACTION_BUILD_SUPPLY: Cost(minerals=100),
 }
 
 
@@ -65,4 +73,10 @@ def cannot_afford(obs, action_id):
     """Returns True if there is not enough resources for the specified
     action (e.g. to create a building or train a unit).
     """
-    return obs.observation.player.minerals <= COSTS.get(action_id, 0)
+    cost = COSTS.get(action_id, None)
+    if not cost:
+        return True
+
+    return obs.observation.player.minerals < cost.minerals or \
+           obs.observation.player.vespene < cost.vespene or \
+           obs.observation.player.food_cap - obs.observation.player.food_used < cost.food

@@ -119,8 +119,7 @@ class Agent(base_agent.BaseAgent):
             if obs.observation.player.idle_worker_count == 0:
                 excluded_actions.add(ACTION_HARVEST_MINERALS)
 
-            if obs.observation.player.food_cap == obs.observation.player.food_used or \
-                    cannot_afford(obs, ACTION_TRAIN_SCV):
+            if cannot_afford(obs, ACTION_TRAIN_SCV):
                 excluded_actions.add(ACTION_TRAIN_SCV)
 
             if len(supplies) >= 2 or cannot_afford(obs, ACTION_BUILD_SUPPLY):
