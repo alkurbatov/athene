@@ -46,7 +46,7 @@ class Stages(enum.IntEnum):
     This enumeration contains predefined values for the stages.
     """
 
-    DO_NOTHING = 0
+    CHOOSE_ACTION = 0
     SELECT_UNIT = 1
     ISSUE_ORDER = 2
 

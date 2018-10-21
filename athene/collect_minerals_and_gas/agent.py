@@ -49,7 +49,7 @@ class Agent(base_agent.BaseAgent):
             src=self.DATA_FOLDER,
         )
 
-        self.stage = Stages.DO_NOTHING
+        self.stage = None
 
         self.minerals = None
         self.geysers = None
@@ -66,7 +66,7 @@ class Agent(base_agent.BaseAgent):
         unit_type = obs.observation.feature_screen.unit_type
 
         if obs.first():
-            self.stage = Stages.SELECT_UNIT
+            self.stage = Stages.CHOOSE_ACTION
             cc_y, cc_x = (unit_type == units.Terran.CommandCenter).nonzero()
             self.town_hall = UnitPos(cc_x, cc_y)
 
@@ -92,8 +92,8 @@ class Agent(base_agent.BaseAgent):
 
         supplies = UnitPosList.locate(obs, units.Terran.SupplyDepot)
 
-        if self.stage == Stages.SELECT_UNIT:
-            self.stage = Stages.ISSUE_ORDER
+        if self.stage == Stages.CHOOSE_ACTION:
+            self.stage = Stages.SELECT_UNIT
 
             town_halls = UnitPosList.locate(obs, units.Terran.CommandCenter)
             refineries = UnitPosList.locate(obs, units.Terran.Refinery)
@@ -105,6 +105,14 @@ class Agent(base_agent.BaseAgent):
                 len(supplies),
                 len(refineries)
             )
+
+            if self.executed_action:
+                self.qlearn.learn(
+                    self.previous_state,
+                    self.executed_action,
+                    0,
+                    current_state
+                )
 
             excluded_actions = set()
 
@@ -140,16 +148,22 @@ class Agent(base_agent.BaseAgent):
             self.previous_state = current_state
             self.executed_action = smart_action
 
-            if smart_action == ACTION_DO_NOTHING:
-                return actions.FUNCTIONS.no_op()
+            return actions.FUNCTIONS.no_op()
 
-            if smart_action == ACTION_TRAIN_SCV:
+        if self.executed_action == ACTION_DO_NOTHING:
+            self.stage = Stages.CHOOSE_ACTION
+            return actions.FUNCTIONS.no_op()
+
+        if self.stage == Stages.SELECT_UNIT:
+            self.stage = Stages.ISSUE_ORDER
+
+            if self.executed_action == ACTION_TRAIN_SCV:
                 cc_y, cc_x = (unit_type == units.Terran.CommandCenter).nonzero()
 
                 cc = UnitPosList.locate(obs, units.Terran.CommandCenter).random_point()
                 return actions.FUNCTIONS.select_point('select', cc.pos)
 
-            if smart_action == ACTION_HARVEST_MINERALS:
+            if self.executed_action == ACTION_HARVEST_MINERALS:
                 if cannot(obs, actions.FUNCTIONS.select_idle_worker.id):
                     return actions.FUNCTIONS.no_op()
 
@@ -160,7 +174,7 @@ class Agent(base_agent.BaseAgent):
             return actions.FUNCTIONS.select_point('select', scv.pos)
 
         if self.stage == Stages.ISSUE_ORDER:
-            self.stage = Stages.SELECT_UNIT
+            self.stage = Stages.CHOOSE_ACTION
 
             if self.executed_action == ACTION_TRAIN_SCV:
                 if cannot(obs, actions.FUNCTIONS.Train_SCV_quick.id):
