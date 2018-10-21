@@ -146,9 +146,7 @@ class Agent(base_agent.BaseAgent):
             if smart_action == ACTION_TRAIN_SCV:
                 cc_y, cc_x = (unit_type == units.Terran.CommandCenter).nonzero()
 
-                # FIXME (alkurbatov): There could be several command centers
-                # on the screen.
-                cc = UnitPos(cc_x, cc_y)
+                cc = UnitPosList.locate(obs, units.Terran.CommandCenter).random_point()
                 return actions.FUNCTIONS.select_point('select', cc.pos)
 
             if smart_action == ACTION_HARVEST_MINERALS:
