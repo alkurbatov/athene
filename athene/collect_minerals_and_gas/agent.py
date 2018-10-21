@@ -166,7 +166,7 @@ class Agent(base_agent.BaseAgent):
                 if cannot(obs, actions.FUNCTIONS.select_idle_worker.id):
                     return actions.FUNCTIONS.no_op()
 
-                return actions.FUNCTIONS.select_idle_worker('select')
+                return actions.FUNCTIONS.select_idle_worker('select_all')
 
             # NOTE (alkurbatov): All other actions require an SCV.
             scv = UnitPosList.locate(obs, units.Terran.SCV).random_point()
