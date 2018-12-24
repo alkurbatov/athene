@@ -3,7 +3,7 @@
 # Copyright (c) 2017-2018 Alexander Kurbatov
 
 """Utility functions and classes to simplify work with the data received
-   from feature_screen.
+from feature_screen.
 """
 
 import math
@@ -84,8 +84,8 @@ class UnitPosClustersList:
     """
 
     def __init__(self, pos_x, pos_y, diameter):
-        kmeans = KMeans(n_clusters=int(math.ceil(len(pos_y) / diameter)))
-        kmeans.fit(list(zip(pos_x, pos_y)))
+        kmeans = KMeans(n_clusters=math.ceil(len(pos_y) / diameter))
+        kmeans.fit(numpy.column_stack((pos_x, pos_y)))
 
         self.cluster_centers = kmeans.cluster_centers_.tolist()
 
