@@ -10,7 +10,7 @@ task.
 Here we use a very simple state machine to complete the task in two iterations.
 
 To run this code do:
-$ python -m pysc2.bin.agent --map MoveToBeacon --agent athene.move_to_beacon.Agent
+$ python -m pysc2.bin.agent --map MoveToBeacon --agent athene.minigames.move_to_beacon.Agent
 """
 
 from pysc2.agents import base_agent

@@ -21,7 +21,7 @@ $ pipenv install --dev
 $ pipenv shell
 
 # Run any learning agent, e.g.
-$ python -m pysc2.bin.agent --map CollectMineralsAndGas --agent athene.collect_minerals_and_gas.Agent
+$ python -m pysc2.bin.agent --map CollectMineralsAndGas --agent athene.minigames.collect_minerals_and_gas.Agent
 
 # See more info in the corresponding agent.py file.
 ```

@@ -6,7 +6,7 @@
 According to the map rules spending of the minerals don't reduce the score.
 
 To run this code do:
-$ python -m pysc2.bin.agent --map CollectMineralsAndGas --agent athene.collect_minerals_and_gas.Agent
+$ python -m pysc2.bin.agent --map CollectMineralsAndGas --agent athene.minigames.collect_minerals_and_gas.Agent
 """
 
 import os
